@@ -130,8 +130,15 @@ export class MemStorage implements IStorage {
     sampleProjects.forEach((p) => {
       const id = randomUUID();
       const project: RenewableProject = {
-        ...p,
         id,
+        name: p.name,
+        state: p.state,
+        technology: p.technology,
+        capacity: p.capacity,
+        status: p.status,
+        description: p.description ?? null,
+        investmentAmount: p.investmentAmount ?? null,
+        completionDate: p.completionDate ?? null,
         createdAt: new Date(),
       };
       this.projects.set(id, project);
@@ -181,7 +188,17 @@ export class MemStorage implements IStorage {
 
     sampleSchemes.forEach((s) => {
       const id = randomUUID();
-      const scheme: FinancingScheme = { ...s, id };
+      const scheme: FinancingScheme = {
+        id,
+        name: s.name,
+        description: s.description,
+        category: s.category,
+        fundingAmount: s.fundingAmount,
+        eligibility: s.eligibility,
+        applicationDeadline: s.applicationDeadline ?? null,
+        targetTechnology: s.targetTechnology ?? null,
+        contactInfo: s.contactInfo ?? null,
+      };
       this.financingSchemes.set(id, scheme);
     });
   }
@@ -197,8 +214,15 @@ export class MemStorage implements IStorage {
   async createProject(insertProject: InsertRenewableProject): Promise<RenewableProject> {
     const id = randomUUID();
     const project: RenewableProject = {
-      ...insertProject,
       id,
+      name: insertProject.name,
+      state: insertProject.state,
+      technology: insertProject.technology,
+      capacity: insertProject.capacity,
+      status: insertProject.status,
+      description: insertProject.description ?? null,
+      investmentAmount: insertProject.investmentAmount ?? null,
+      completionDate: insertProject.completionDate ?? null,
       createdAt: new Date(),
     };
     this.projects.set(id, project);
@@ -220,8 +244,15 @@ export class MemStorage implements IStorage {
   async createCarbonEmission(insertEmission: InsertCarbonEmission): Promise<CarbonEmission> {
     const id = randomUUID();
     const emission: CarbonEmission = {
-      ...insertEmission,
       id,
+      organizationName: insertEmission.organizationName,
+      organizationType: insertEmission.organizationType,
+      state: insertEmission.state,
+      reportingPeriod: insertEmission.reportingPeriod,
+      energyEmissions: insertEmission.energyEmissions,
+      transportEmissions: insertEmission.transportEmissions,
+      wasteEmissions: insertEmission.wasteEmissions,
+      totalEmissions: insertEmission.totalEmissions,
       createdAt: new Date(),
     };
     this.carbonEmissions.set(id, emission);
@@ -242,7 +273,17 @@ export class MemStorage implements IStorage {
 
   async createFinancingScheme(insertScheme: InsertFinancingScheme): Promise<FinancingScheme> {
     const id = randomUUID();
-    const scheme: FinancingScheme = { ...insertScheme, id };
+    const scheme: FinancingScheme = {
+      id,
+      name: insertScheme.name,
+      description: insertScheme.description,
+      category: insertScheme.category,
+      fundingAmount: insertScheme.fundingAmount,
+      eligibility: insertScheme.eligibility,
+      applicationDeadline: insertScheme.applicationDeadline ?? null,
+      targetTechnology: insertScheme.targetTechnology ?? null,
+      contactInfo: insertScheme.contactInfo ?? null,
+    };
     this.financingSchemes.set(id, scheme);
     return scheme;
   }
@@ -261,7 +302,16 @@ export class MemStorage implements IStorage {
 
   async createRegionalCapacity(insertCapacity: InsertRegionalCapacity): Promise<RegionalCapacity> {
     const id = randomUUID();
-    const capacity: RegionalCapacity = { ...insertCapacity, id };
+    const capacity: RegionalCapacity = {
+      id,
+      state: insertCapacity.state,
+      solarCapacity: insertCapacity.solarCapacity,
+      windCapacity: insertCapacity.windCapacity,
+      hydroCapacity: insertCapacity.hydroCapacity,
+      totalCapacity: insertCapacity.totalCapacity,
+      targetCapacity: insertCapacity.targetCapacity,
+      population: insertCapacity.population ?? null,
+    };
     this.regionalCapacity.set(id, capacity);
     return capacity;
   }
@@ -271,4 +321,12 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+async function createStorage(): Promise<IStorage> {
+  if (process.env.DATABASE_URL) {
+    const { DbStorage } = await import("./db-storage");
+    return new DbStorage();
+  }
+  return new MemStorage();
+}
+
+export const storage = await createStorage();
