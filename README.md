@@ -85,4 +85,4 @@ A comprehensive web application for tracking renewable energy projects, carbon e
 - npm or yarn package manager
 - PostgreSQL database (optional for local development)
 
-DEPLOYMENT LINK - 
+DEPLOYMENT LINK - https://github.com/Majenayu/Prompt_to_Product.git
