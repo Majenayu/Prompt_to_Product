@@ -1,88 +1,61 @@
-TEAM NO - 05
+# Prompt to Product
 
-PARTICIPANT NAME:
+A full-stack Vite/React and Express application for turning product concepts into a persistent workspace. It uses shared TypeScript schemas, Drizzle-compatible database access, server-side routes, and a production bundle that serves the built client.
 
-THRISHA HEGDE
+## Architecture
 
-K USHA
+```mermaid
+flowchart LR
+  Client[React/Vite client] --> API[Express server/index.ts]
+  API --> Routes[server/routes.ts]
+  Routes --> Storage[server/storage.ts / db-storage.ts]
+  Storage --> DB[(Configured SQL database)]
+  Schema[shared/schema.ts] --> Storage
+```
 
-SANDESH S KUMAR
+Development uses Vite middleware; production serves the generated client from `dist/`. `server/seed.ts` provides initial data and `drizzle.config.ts` defines database tooling.
 
-                  
-PROJECT TITLE : VIDYUTH VERSE -  "Renewable Energy Dashboard for India"
+## Setup
 
-PROBLEM STATEMENT - Accelerate renewable energy deployment across regions and carbon calculation
+```bash
+npm ci
+npm run dev
+# validation and production
+npm run check
+npm run build
+npm start
+# apply schema changes only after review
+npm run db:push
+```
 
-DESCRIPTION OF AI USAGE - This project was developed using Lovable AI, an AI-powered development assistant that simplifies web app creation through natural language prompts.
+Set `DATABASE_URL` and any application/session variables in a local environment. Do not commit credentials.
 
-Lovable AI helped in:
+## Request and data flow
 
-Generating the frontend and backend code structure for the dashboard.
-Designing responsive UI components using React and Tailwind CSS.
-Assisting in API integration and database connectivity with PostgreSQL.
-Enabling rapid prototyping and quick feature iteration during development.
-Lovable AI significantly accelerated the overall build process, allowing the team to focus more on data analysis and functionality rather than repetitive coding tasks.
+The React client submits JSON to `/api/*`; Express validates and dispatches through `registerRoutes`, storage persists records, and the server returns JSON. `shared/schema.ts` is the canonical contract for domain fields and validation.
 
+## Deployment
 
-TECH STACK - #Renewable Energy Dashboard for India
-A comprehensive web application for tracking renewable energy projects, carbon emissions, financing schemes, and regional capacity data across India. Built with React, Express, and PostgreSQL.
-## Features
+`render.yaml` provisions a Node service and PostgreSQL database, builds the client/server bundle, pushes the schema, and starts the app. For production, pin migration procedures, use a managed secret store, HTTPS, and backups.
 
-### 🌍 Interactive Regional Map
-- Visualize renewable energy capacity across Indian states
-- Color-coded map showing solar, wind, and hydro capacity
-- Click on states to view detailed capacity information
-- Track progress toward renewable energy targets
+## Testing and limitations
 
-### 📊 Analytics Dashboard
-- Real-time metrics for renewable energy adoption
-- Track total installed capacity across technologies
-- Monitor carbon emission reductions
-- View investment trends and project statistics
+TypeScript checking is available through `npm run check`; no dedicated unit/integration suite is declared. Test API validation, authorization, database failure/retry behavior, seed idempotency, and the complete client workflow.
 
-### 🏗️ Project Management
-- Browse renewable energy projects across India
-- Filter by state, technology (Solar, Wind, Hydro, Biomass, Nuclear), and status
-- View project details including capacity, investment, and completion dates
-- Add, edit, and delete projects
+## Security and operations
 
-### 💰 Financing Schemes
-- Discover government subsidies, loans, grants, and tax incentives
-- Filter by category and target technology
-- Access eligibility criteria and application deadlines
-- Contact information for scheme administrators
+- Keep credentials, database URLs, OAuth tokens, API keys, and signing secrets in environment variables; never commit them.
+- Validate and constrain uploaded files and user input at the server boundary, and enable HTTPS in production.
+- Review dependency updates and rotate any credential that has appeared in repository history.
 
-### 🌱 Carbon Calculator
-- Calculate carbon emissions for organizations
-- Track energy, transport, and waste emissions
-- Historical emission tracking and reporting
-- Organization-level emission analytics
+## Testing
 
-## Tech Stack
+The repository currently has no comprehensive automated test suite unless noted above. Before production changes, add tests for authentication/authorization, validation failures, persistence errors, and the primary user workflow.
 
-### Frontend
-- **React 18** - Modern UI library
-- **TypeScript** - Type-safe development
-- **Vite** - Fast build tool and dev server
-- **TanStack Query** - Server state management
-- **Wouter** - Lightweight routing
-- **shadcn/ui** - Beautiful, accessible UI components
-- **Tailwind CSS** - Utility-first styling
-- **Recharts** - Data visualization
-- **Framer Motion** - Smooth animations
+## Limitations and roadmap
 
-### Backend
-- **Node.js** - JavaScript runtime
-- **Express** - Web framework
-- **TypeScript** - Type-safe server code
-- **Drizzle ORM** - Type-safe database queries
-- **PostgreSQL** (Neon) - Production database
-- **Zod** - Runtime validation
+This is an actively evolving project. Production hardening, observability, rate limiting, backup/retention policy, and accessibility/performance validation should be completed before handling sensitive or high-volume workloads.
 
-## Prerequisites
+## License
 
-- Node.js 20 or higher
-- npm or yarn package manager
-- PostgreSQL database (optional for local development)
-
-DEPLOYMENT LINK - prompt-to-product-at40.onrender.com
+See the repository license file and package metadata for the authoritative terms.
