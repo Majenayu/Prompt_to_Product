@@ -1,88 +1,72 @@
-TEAM NO - 05
+# Prompt to Product
 
-PARTICIPANT NAME:
+Prompt to Product is a full-stack renewable-energy planning workspace. The React/Vite client presents regional capacity, project, financing, and carbon-emissions views; an Express/TypeScript server exposes the API and selects database-backed or in-memory storage.
 
-THRISHA HEGDE
+## Architecture
 
-K USHA
+```mermaid
+flowchart LR
+  UI[client/src React UI] --> API[server/routes.ts]
+  API --> Store[server/storage.ts]
+  Store --> Memory[MemStorage]
+  Store --> SQL[DbStorage / Drizzle]
+  SQL --> DB[(PostgreSQL via DATABASE_URL)]
+  Schema[shared/schema.ts] --> API
+  Schema --> Store
+```
 
-SANDESH S KUMAR
+`server/index.ts` starts Express, installs Vite middleware in development, and serves the built client in production. `server/routes.ts` validates request bodies with the shared schema and delegates persistence to the storage interface. `server/seed.ts` contains seed data and `render.yaml` describes the Render deployment.
 
-                  
-PROJECT TITLE : VIDYUTH VERSE -  "Renewable Energy Dashboard for India"
+## Features and API surface
 
-PROBLEM STATEMENT - Accelerate renewable energy deployment across regions and carbon calculation
+- Project records: `GET/POST /api/projects`, `GET/DELETE /api/projects/:id`
+- Carbon records: `GET/POST /api/carbon-emissions`, `GET/DELETE /api/carbon-emissions/:id`
+- Financing schemes: `GET/POST /api/financing-schemes`, `GET/DELETE /api/financing-schemes/:id`
+- Regional capacity: `GET/POST /api/regional-capacity`, `GET /api/regional-capacity/:state`, `DELETE /api/regional-capacity/:id`
+- Interactive map, analytics cards, project management, financing information, and carbon calculations in `client/src/`
 
-DESCRIPTION OF AI USAGE - This project was developed using Lovable AI, an AI-powered development assistant that simplifies web app creation through natural language prompts.
+Treat these routes as the current implementation contract; they are not a versioned public API.
 
-Lovable AI helped in:
+## Local setup
 
-Generating the frontend and backend code structure for the dashboard.
-Designing responsive UI components using React and Tailwind CSS.
-Assisting in API integration and database connectivity with PostgreSQL.
-Enabling rapid prototyping and quick feature iteration during development.
-Lovable AI significantly accelerated the overall build process, allowing the team to focus more on data analysis and functionality rather than repetitive coding tasks.
+Requirements: Node.js, npm, and a PostgreSQL-compatible `DATABASE_URL` when using persistent storage.
 
+```bash
+npm ci
+npm run dev
+# type-check and create a production bundle
+npm run check
+npm run build
+npm start
+```
 
-TECH STACK - #Renewable Energy Dashboard for India
-A comprehensive web application for tracking renewable energy projects, carbon emissions, financing schemes, and regional capacity data across India. Built with React, Express, and PostgreSQL.
-## Features
+`npm run db:push` applies the Drizzle schema to the configured database. Review schema changes before running it against shared environments. Without `DATABASE_URL`, the server can fall back to its in-memory implementation, so local data may not persist.
 
-### 🌍 Interactive Regional Map
-- Visualize renewable energy capacity across Indian states
-- Color-coded map showing solar, wind, and hydro capacity
-- Click on states to view detailed capacity information
-- Track progress toward renewable energy targets
+## Project layout
 
-### 📊 Analytics Dashboard
-- Real-time metrics for renewable energy adoption
-- Track total installed capacity across technologies
-- Monitor carbon emission reductions
-- View investment trends and project statistics
+| Path | Responsibility |
+| --- | --- |
+| `client/src/` | React pages, components, charts, map, and styling |
+| `server/index.ts` | HTTP server and development/production startup |
+| `server/routes.ts` | API routes and validation |
+| `server/storage.ts` | Storage interface and in-memory implementation |
+| `server/db-storage.ts` | Drizzle-backed persistence |
+| `shared/schema.ts` | Shared database and validation schema |
+| `drizzle.config.ts` | Drizzle Kit configuration |
+| `render.yaml` | Deployment definition |
 
-### 🏗️ Project Management
-- Browse renewable energy projects across India
-- Filter by state, technology (Solar, Wind, Hydro, Biomass, Nuclear), and status
-- View project details including capacity, investment, and completion dates
-- Add, edit, and delete projects
+## Deployment and operations
 
-### 💰 Financing Schemes
-- Discover government subsidies, loans, grants, and tax incentives
-- Filter by category and target technology
-- Access eligibility criteria and application deadlines
-- Contact information for scheme administrators
+The checked-in Render definition builds the Vite client and bundled server, then starts the production process. Configure `DATABASE_URL` and session/application settings through the platform secret manager. Use HTTPS, database backups, access controls, and migration review in production.
 
-### 🌱 Carbon Calculator
-- Calculate carbon emissions for organizations
-- Track energy, transport, and waste emissions
-- Historical emission tracking and reporting
-- Organization-level emission analytics
+## Testing and limitations
 
-## Tech Stack
+`npm run check` is the available automated validation command; the package does not declare a unit or integration test suite. Add coverage for route validation, not-found/error responses, persistence failures, seed idempotency, and the main client workflow before production use. The prototype does not document authentication, authorization, rate limiting, or observability, and should not be used for sensitive workloads without those controls.
 
-### Frontend
-- **React 18** - Modern UI library
-- **TypeScript** - Type-safe development
-- **Vite** - Fast build tool and dev server
-- **TanStack Query** - Server state management
-- **Wouter** - Lightweight routing
-- **shadcn/ui** - Beautiful, accessible UI components
-- **Tailwind CSS** - Utility-first styling
-- **Recharts** - Data visualization
-- **Framer Motion** - Smooth animations
+## Security
 
-### Backend
-- **Node.js** - JavaScript runtime
-- **Express** - Web framework
-- **TypeScript** - Type-safe server code
-- **Drizzle ORM** - Type-safe database queries
-- **PostgreSQL** (Neon) - Production database
-- **Zod** - Runtime validation
+Do not commit database URLs, session secrets, API keys, or OAuth credentials. Validate and constrain all future uploads and user input at the server boundary, restrict database permissions, and rotate any credential exposed in repository history.
 
-## Prerequisites
+## License
 
-- Node.js 20 or higher
-- npm or yarn package manager
-- PostgreSQL database (optional for local development)
-
-DEPLOYMENT LINK - prompt-to-product-at40.onrender.com
+See the repository license file and package metadata for the authoritative terms.
